@@ -10,7 +10,14 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import { Movie } from '@/types'
 import { API_CONFIG } from '@/config/api'
-import { COLORS } from '@/constants'
+import {
+  COLORS,
+  SPACING,
+  FONT_SIZES,
+  FONT_WEIGHTS,
+  BORDER_RADIUS,
+  DIMENSIONS,
+} from '@/constants'
 
 interface MovieCardProps {
   movie: Movie
@@ -19,7 +26,7 @@ interface MovieCardProps {
 }
 
 const { width } = Dimensions.get('window')
-const CARD_WIDTH = (width - 48) / 2 // 2 columns with padding
+const CARD_WIDTH = (width - SPACING.lg * 3) / 2 // 2 columns with padding
 
 export const MovieCard: React.FC<MovieCardProps> = ({
   movie,
@@ -41,7 +48,11 @@ export const MovieCard: React.FC<MovieCardProps> = ({
           <Image source={{ uri: posterUrl }} style={styles.poster} />
         ) : (
           <View style={[styles.poster, styles.placeholderPoster]}>
-            <Ionicons name="film-outline" size={40} color="#ccc" />
+            <Ionicons
+              name="film-outline"
+              size={FONT_SIZES.xxxl}
+              color={COLORS.textSecondary}
+            />
           </View>
         )}
 
@@ -52,7 +63,7 @@ export const MovieCard: React.FC<MovieCardProps> = ({
         >
           <Ionicons
             name={movie.isFavorite ? 'heart' : 'heart-outline'}
-            size={20}
+            size={FONT_SIZES.lg}
             color={movie.isFavorite ? COLORS.favorite : COLORS.textWhite}
           />
         </TouchableOpacity>
@@ -64,7 +75,7 @@ export const MovieCard: React.FC<MovieCardProps> = ({
         </Text>
 
         <View style={styles.ratingContainer}>
-          <Ionicons name="star" size={12} color="#FFD700" />
+          <Ionicons name="star" size={FONT_SIZES.sm} color={COLORS.rating} />
           <Text style={styles.rating}>{movie.vote_average.toFixed(1)}</Text>
         </View>
 
@@ -79,9 +90,9 @@ export const MovieCard: React.FC<MovieCardProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: CARD_WIDTH,
-    marginBottom: 16,
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    marginBottom: SPACING.lg,
+    backgroundColor: COLORS.background,
+    borderRadius: BORDER_RADIUS.lg,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -97,47 +108,47 @@ const styles = StyleSheet.create({
   poster: {
     width: '100%',
     height: CARD_WIDTH * 1.5, // 3:2 aspect ratio
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    borderTopLeftRadius: BORDER_RADIUS.lg,
+    borderTopRightRadius: BORDER_RADIUS.lg,
   },
   placeholderPoster: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: COLORS.backgroundGray,
     justifyContent: 'center',
     alignItems: 'center',
   },
   favoriteButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: 16,
+    top: SPACING.sm,
+    right: SPACING.sm,
+    backgroundColor: COLORS.overlay,
+    borderRadius: BORDER_RADIUS.round,
     width: 32,
     height: 32,
     justifyContent: 'center',
     alignItems: 'center',
   },
   content: {
-    padding: 12,
+    padding: SPACING.md,
   },
   title: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-    lineHeight: 18,
+    fontSize: FONT_SIZES.md,
+    fontWeight: FONT_WEIGHTS.semibold,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.xs,
+    lineHeight: SPACING.lg,
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: SPACING.xs,
   },
   rating: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 4,
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+    marginLeft: SPACING.xs,
   },
   releaseDate: {
-    fontSize: 12,
-    color: '#999',
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
   },
 })

@@ -1,4 +1,11 @@
-import React, { useEffect, useCallback } from 'react'
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+  useRef,
+  useMemo,
+  useState,
+} from 'react'
 import {
   View,
   Text,
@@ -44,11 +51,18 @@ type MovieDetailsScreenRouteProp = RouteProp<
 const MovieDetailsScreen: React.FC = () => {
   const dispatch = useDispatch()
   const route = useRoute<MovieDetailsScreenRouteProp>()
+  const scrollViewRef = useRef<ScrollView>(null)
+  const scrollPosition = useRef(0)
 
   const { movieId, movie } = route.params
 
   const movieDetails = useSelector(
     (state: RootState) => state.movies.movieDetails[movieId],
+  )
+
+  // Check if current movie is in favorites
+  const isFavorite = useSelector((state: RootState) =>
+    state.movies.favorites.some((fav) => fav.id === movieId),
   )
 
   useEffect(() => {
@@ -57,173 +71,218 @@ const MovieDetailsScreen: React.FC = () => {
     }
   }, [dispatch, movieId, movieDetails])
 
+  const [preservedScrollY, setPreservedScrollY] = useState(0)
+  const [shouldRestoreScroll, setShouldRestoreScroll] = useState(false)
+
   const handleToggleFavorite = useCallback(() => {
     const movieToToggle = movieDetails || movie
     if (movieToToggle) {
+      // Preserve current scroll position before dispatch
+      setPreservedScrollY(scrollPosition.current)
+      setShouldRestoreScroll(true)
+
       dispatch(toggleFavorite({ movie: movieToToggle }))
     }
   }, [dispatch, movieDetails, movie])
 
-  const currentMovie = movieDetails || movie
+  // Restore scroll position after favorite toggle using useLayoutEffect
+  useLayoutEffect(() => {
+    if (shouldRestoreScroll && scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        y: preservedScrollY,
+        animated: false,
+      })
+      setShouldRestoreScroll(false)
+    }
+  }, [shouldRestoreScroll, preservedScrollY, isFavorite])
 
-  if (!currentMovie) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>{STRINGS.loading.default}</Text>
-      </View>
-    )
-  }
+  const handleScroll = useCallback((event: any) => {
+    scrollPosition.current = event.nativeEvent.contentOffset.y
+  }, [])
 
-  const backdropUrl = currentMovie.backdrop_path
+  // Create enhanced movie with favorite status
+  const currentMovie = useMemo(() => {
+    const baseMovie = movieDetails || movie
+    return baseMovie ? { ...baseMovie, isFavorite } : null
+  }, [movieDetails, movie, isFavorite])
+
+  const backdropUrl = currentMovie?.backdrop_path
     ? `https://image.tmdb.org/t/p/w780${currentMovie.backdrop_path}`
     : null
 
-  const posterUrl = currentMovie.poster_path
+  const posterUrl = currentMovie?.poster_path
     ? `${API_CONFIG.imageBaseUrl}${currentMovie.poster_path}`
     : null
 
-  const MovieDetailsComponent = withApiState(() => (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {backdropUrl && (
-        <View style={styles.backdropContainer}>
-          <Image source={{ uri: backdropUrl }} style={styles.backdrop} />
+  // Memoize the movie content to prevent unnecessary re-renders
+  const MovieContent = useMemo(() => {
+    if (!currentMovie) {
+      return (
+        <View style={styles.loadingContainer}>
+          <Text>{STRINGS.loading.default}</Text>
         </View>
-      )}
+      )
+    }
 
-      <View style={styles.content}>
-        <View style={styles.movieInfo}>
-          <View style={styles.movieHeader}>
-            {posterUrl && (
-              <Image source={{ uri: posterUrl }} style={styles.poster} />
-            )}
+    return (
+      <>
+        {backdropUrl && (
+          <View style={styles.backdropContainer}>
+            <Image source={{ uri: backdropUrl }} style={styles.backdrop} />
+          </View>
+        )}
 
-            <View style={styles.movieBasicInfo}>
-              <Text style={styles.title}>{currentMovie.title}</Text>
-
-              {currentMovie.tagline && (
-                <Text style={styles.tagline}>{currentMovie.tagline}</Text>
+        <View style={styles.content}>
+          <View style={styles.movieInfo}>
+            <View style={styles.movieHeader}>
+              {posterUrl && (
+                <Image source={{ uri: posterUrl }} style={styles.poster} />
               )}
 
-              <View style={styles.ratingContainer}>
-                <Ionicons
-                  name="star"
-                  size={FONT_SIZES.lg}
-                  color={COLORS.rating}
-                />
-                <Text style={styles.rating}>
-                  {currentMovie.vote_average.toFixed(1)}
-                </Text>
-                <Text style={styles.voteCount}>
-                  {formatString.votes(currentMovie.vote_count)}
-                </Text>
-              </View>
+              <View style={styles.movieBasicInfo}>
+                <Text style={styles.title}>{currentMovie.title}</Text>
 
-              <View style={styles.metaInfo}>
-                <Text style={styles.releaseDate}>
-                  {formatString.year(currentMovie.release_date)}
-                </Text>
-                {movieDetails?.runtime && (
-                  <>
-                    <Text style={styles.separator}>•</Text>
-                    <Text style={styles.runtime}>
-                      {formatString.runtime(movieDetails.runtime)}
-                    </Text>
-                  </>
+                {currentMovie.tagline && (
+                  <Text style={styles.tagline}>{currentMovie.tagline}</Text>
+                )}
+
+                <View style={styles.ratingContainer}>
+                  <Ionicons
+                    name="star"
+                    size={FONT_SIZES.lg}
+                    color={COLORS.rating}
+                  />
+                  <Text style={styles.rating}>
+                    {currentMovie.vote_average.toFixed(1)}
+                  </Text>
+                  <Text style={styles.voteCount}>
+                    {formatString.votes(currentMovie.vote_count)}
+                  </Text>
+                </View>
+
+                <View style={styles.metaInfo}>
+                  <Text style={styles.releaseDate}>
+                    {formatString.year(currentMovie.release_date)}
+                  </Text>
+                  {movieDetails?.runtime && (
+                    <>
+                      <Text style={styles.separator}>•</Text>
+                      <Text style={styles.runtime}>
+                        {formatString.runtime(movieDetails.runtime)}
+                      </Text>
+                    </>
+                  )}
+                </View>
+
+                {movieDetails?.genres && movieDetails.genres.length > 0 && (
+                  <View style={styles.genresContainer}>
+                    {movieDetails.genres.map((genre: Genre) => (
+                      <View key={genre.id} style={styles.genreChip}>
+                        <Text style={styles.genreText}>{genre.name}</Text>
+                      </View>
+                    ))}
+                  </View>
                 )}
               </View>
-
-              {movieDetails?.genres && movieDetails.genres.length > 0 && (
-                <View style={styles.genresContainer}>
-                  {movieDetails.genres.map((genre: Genre) => (
-                    <View key={genre.id} style={styles.genreChip}>
-                      <Text style={styles.genreText}>{genre.name}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
             </View>
-          </View>
 
-          <TouchableOpacity
-            style={styles.favoriteButton}
-            onPress={handleToggleFavorite}
-            activeOpacity={0.8}
-          >
-            <Ionicons
-              name={currentMovie.isFavorite ? 'heart' : 'heart-outline'}
-              size={FONT_SIZES.xxxl}
-              color={currentMovie.isFavorite ? COLORS.favorite : COLORS.primary}
-            />
-            <Text
-              style={[
-                styles.favoriteButtonText,
-                {
-                  color: currentMovie.isFavorite
-                    ? COLORS.favorite
-                    : COLORS.primary,
-                },
-              ]}
+            <TouchableOpacity
+              style={styles.favoriteButton}
+              onPress={handleToggleFavorite}
+              activeOpacity={0.8}
             >
-              {currentMovie.isFavorite
-                ? STRINGS.movies.removeFromFavorites
-                : STRINGS.movies.addToFavorites}
-            </Text>
-          </TouchableOpacity>
+              <Ionicons
+                name={currentMovie.isFavorite ? 'heart' : 'heart-outline'}
+                size={FONT_SIZES.xxxl}
+                color={
+                  currentMovie.isFavorite ? COLORS.favorite : COLORS.primary
+                }
+              />
+              <Text
+                style={[
+                  styles.favoriteButtonText,
+                  {
+                    color: currentMovie.isFavorite
+                      ? COLORS.favorite
+                      : COLORS.primary,
+                  },
+                ]}
+              >
+                {currentMovie.isFavorite
+                  ? STRINGS.movies.removeFromFavorites
+                  : STRINGS.movies.addToFavorites}
+              </Text>
+            </TouchableOpacity>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{STRINGS.movies.overview}</Text>
-            <Text style={styles.overview}>{currentMovie.overview}</Text>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>{STRINGS.movies.overview}</Text>
+              <Text style={styles.overview}>{currentMovie.overview}</Text>
+            </View>
+
+            {movieDetails && (
+              <>
+                {movieDetails.budget > 0 && (
+                  <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>
+                      {STRINGS.movies.budget}
+                    </Text>
+                    <Text style={styles.detailText}>
+                      {formatString.currency(movieDetails.budget)}
+                    </Text>
+                  </View>
+                )}
+
+                {movieDetails.revenue > 0 && (
+                  <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>
+                      {STRINGS.movies.revenue}
+                    </Text>
+                    <Text style={styles.detailText}>
+                      {formatString.currency(movieDetails.revenue)}
+                    </Text>
+                  </View>
+                )}
+
+                {movieDetails.production_companies.length > 0 && (
+                  <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>
+                      {STRINGS.movies.productionCompanies}
+                    </Text>
+                    <Text style={styles.detailText}>
+                      {movieDetails.production_companies
+                        .map((company: ProductionCompany) => company.name)
+                        .join(', ')}
+                    </Text>
+                  </View>
+                )}
+              </>
+            )}
           </View>
-
-          {movieDetails && (
-            <>
-              {movieDetails.budget > 0 && (
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>
-                    {STRINGS.movies.budget}
-                  </Text>
-                  <Text style={styles.detailText}>
-                    {formatString.currency(movieDetails.budget)}
-                  </Text>
-                </View>
-              )}
-
-              {movieDetails.revenue > 0 && (
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>
-                    {STRINGS.movies.revenue}
-                  </Text>
-                  <Text style={styles.detailText}>
-                    {formatString.currency(movieDetails.revenue)}
-                  </Text>
-                </View>
-              )}
-
-              {movieDetails.production_companies.length > 0 && (
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>
-                    {STRINGS.movies.productionCompanies}
-                  </Text>
-                  <Text style={styles.detailText}>
-                    {movieDetails.production_companies
-                      .map((company: ProductionCompany) => company.name)
-                      .join(', ')}
-                  </Text>
-                </View>
-              )}
-            </>
-          )}
         </View>
-      </View>
-    </ScrollView>
-  ))
+      </>
+    )
+  }, [currentMovie, movieDetails, handleToggleFavorite, backdropUrl, posterUrl])
+
+  const WrappedContent = withApiState(() => MovieContent)
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
-      <MovieDetailsComponent
-        apiState={{ isLoading: false, error: null }}
-        onRetry={() => dispatch(fetchMovieDetailsRequest({ movieId }))}
-      />
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        maintainVisibleContentPosition={{
+          minIndexForVisible: 0,
+          autoscrollToTopThreshold: 10,
+        }}
+      >
+        <WrappedContent
+          apiState={{ isLoading: false, error: null }}
+          onRetry={() => dispatch(fetchMovieDetailsRequest({ movieId }))}
+        />
+      </ScrollView>
     </SafeAreaView>
   )
 }

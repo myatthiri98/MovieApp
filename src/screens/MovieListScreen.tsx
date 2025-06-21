@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useLayoutEffect,
+} from 'react'
 import {
   View,
   Text,
@@ -44,6 +50,10 @@ const MovieListScreen: React.FC = () => {
   const dispatch = useDispatch()
   const navigation = useNavigation<MovieListScreenNavigationProp>()
   const [activeTab, setActiveTab] = useState<TabType>('upcoming')
+  const flatListRef = useRef<FlatList>(null)
+  const scrollPosition = useRef(0)
+  const [preservedScrollY, setPreservedScrollY] = useState(0)
+  const [shouldRestoreScroll, setShouldRestoreScroll] = useState(false)
 
   const { upcoming, popular } = useSelector((state: RootState) => state.movies)
 
@@ -91,10 +101,29 @@ const MovieListScreen: React.FC = () => {
 
   const handleToggleFavorite = useCallback(
     (movie: Movie) => {
+      // Preserve current scroll position before dispatch
+      setPreservedScrollY(scrollPosition.current)
+      setShouldRestoreScroll(true)
+
       dispatch(toggleFavorite({ movie }))
     },
     [dispatch],
   )
+
+  const handleScroll = useCallback((event: any) => {
+    scrollPosition.current = event.nativeEvent.contentOffset.y
+  }, [])
+
+  // Restore scroll position after favorite toggle
+  useLayoutEffect(() => {
+    if (shouldRestoreScroll && flatListRef.current) {
+      flatListRef.current.scrollToOffset({
+        offset: preservedScrollY,
+        animated: false,
+      })
+      setShouldRestoreScroll(false)
+    }
+  }, [shouldRestoreScroll, preservedScrollY, currentData.movies])
 
   const renderMovieCard = useCallback(
     ({ item }: { item: Movie }) => (
@@ -118,26 +147,16 @@ const MovieListScreen: React.FC = () => {
     return null
   }, [currentData])
 
-  const MovieListComponent = withApiState(({ movies }: { movies: Movie[] }) => (
-    <FlatList
-      data={movies}
-      renderItem={renderMovieCard}
-      keyExtractor={(item) => item.id.toString()}
-      numColumns={2}
-      columnWrapperStyle={styles.row}
-      contentContainerStyle={styles.listContainer}
-      refreshControl={
-        <RefreshControl
-          refreshing={currentData.api.isRefreshing || false}
-          onRefresh={handleRefresh}
-          colors={[COLORS.primary]}
-        />
-      }
-      onEndReached={handleLoadMore}
-      onEndReachedThreshold={PAGINATION.endReachedThreshold}
-      ListFooterComponent={renderFooter}
-      showsVerticalScrollIndicator={false}
-    />
+  const MovieListContent = withApiState(() => (
+    <View style={{ flex: 1 }}>
+      {currentData.movies.length === 0 && !currentData.api.isLoading ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>
+            {formatString.emptyMovies(activeTab)}
+          </Text>
+        </View>
+      ) : null}
+    </View>
   ))
 
   return (
@@ -174,15 +193,43 @@ const MovieListScreen: React.FC = () => {
         </View>
       </View>
 
-      <MovieListComponent
-        movies={currentData.movies}
-        apiState={currentData.api}
-        onRetry={handleRefresh}
-        showEmptyState={
-          currentData.movies.length === 0 && !currentData.api.isLoading
+      <FlatList
+        ref={flatListRef}
+        data={currentData.movies}
+        renderItem={renderMovieCard}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.listContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={currentData.api.isRefreshing || false}
+            onRefresh={handleRefresh}
+            colors={[COLORS.primary]}
+          />
         }
-        emptyMessage={formatString.emptyMovies(activeTab)}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={PAGINATION.endReachedThreshold}
+        ListFooterComponent={renderFooter}
+        showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        maintainVisibleContentPosition={{
+          minIndexForVisible: 0,
+          autoscrollToTopThreshold: 10,
+        }}
+        ListEmptyComponent={
+          currentData.movies.length === 0 && !currentData.api.isLoading ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                {formatString.emptyMovies(activeTab)}
+              </Text>
+            </View>
+          ) : null
+        }
       />
+
+      <MovieListContent apiState={currentData.api} onRetry={handleRefresh} />
     </SafeAreaView>
   )
 }
@@ -237,6 +284,17 @@ const styles = StyleSheet.create({
   loadingFooter: {
     padding: SPACING.lg,
     alignItems: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.xl,
+  },
+  emptyText: {
+    fontSize: FONT_SIZES.lg,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
   },
 })
 
