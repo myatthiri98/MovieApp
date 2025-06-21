@@ -12,15 +12,15 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigation } from '@react-navigation/native'
 import { StackNavigationProp } from '@react-navigation/stack'
 
-import { MovieCard } from '../components/MovieCard'
-import { withApiState } from '../components/hoc/withApiState'
+import { MovieCard } from '@/components/MovieCard'
+import { withApiState } from '@/components/hoc/withApiState'
 import {
   fetchUpcomingMoviesRequest,
   fetchPopularMoviesRequest,
   toggleFavorite,
   loadFavorites,
-} from '../store/actions/movieActions'
-import { RootStackParamList, Movie, RootState } from '../types'
+} from '@/store/actions/movieActions'
+import { RootStackParamList, Movie, RootState } from '@/types'
 
 type MovieListScreenNavigationProp = StackNavigationProp<
   RootStackParamList,

@@ -12,18 +12,18 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useRoute, RouteProp } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 
-import { withApiState } from '../components/hoc/withApiState'
+import { withApiState } from '@/components/hoc/withApiState'
 import {
   fetchMovieDetailsRequest,
   toggleFavorite,
-} from '../store/actions/movieActions'
+} from '@/store/actions/movieActions'
 import {
   RootStackParamList,
   RootState,
   Genre,
   ProductionCompany,
-} from '../types'
-import { API_CONFIG } from '../config/api'
+} from '@/types'
+import { API_CONFIG } from '@/config/api'
 
 type MovieDetailsScreenRouteProp = RouteProp<RootStackParamList, 'MovieDetails'>
 

@@ -22,9 +22,9 @@ import {
   toggleFavorite,
   loadFavorites,
   loadFavoritesSuccess,
-} from '../actions/movieActions'
-import { apiService } from '../../services/api'
-import { Movie, MovieDetails, MovieListResponse, RootState } from '../../types'
+} from '@/store/actions/movieActions'
+import { apiService } from '@/services/api'
+import { Movie, MovieDetails, MovieListResponse, RootState } from '@/types'
 
 // Worker Sagas
 function* fetchUpcomingMoviesSaga(

@@ -1,5 +1,5 @@
 import { TMDB_API_KEY } from '@env'
-import { ApiConfig } from '../types'
+import { ApiConfig } from '@/types'
 
 export const API_CONFIG: ApiConfig = {
   baseUrl: 'https://api.themoviedb.org/3',
