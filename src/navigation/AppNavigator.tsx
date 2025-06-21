@@ -1,4 +1,5 @@
 import React from 'react'
+import { Platform } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { RootStackParamList } from '../types'
@@ -32,13 +33,24 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen
           name="MovieDetails"
           component={MovieDetailsScreen}
-          options={{
+          options={({ route }) => ({
             headerStyle: {
               backgroundColor: '#007AFF',
             },
             headerTintColor: '#fff',
-            headerBackTitle: '',
-          }}
+            title: route.params?.movie?.title || 'Movie Details',
+            ...(Platform.OS === 'ios'
+              ? {
+                  headerBackTitle: 'Back',
+                  headerBackTitleVisible: true,
+                  headerBackTitleStyle: {
+                    fontSize: 16,
+                  },
+                }
+              : {
+                  headerBackTitle: '',
+                }),
+          })}
         />
       </Stack.Navigator>
     </NavigationContainer>

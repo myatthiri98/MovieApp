@@ -9,8 +9,7 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useDispatch, useSelector } from 'react-redux'
-import { useRoute, useNavigation, RouteProp } from '@react-navigation/native'
-import { StackNavigationProp } from '@react-navigation/stack'
+import { useRoute, RouteProp } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 
 import { withApiState } from '../components/hoc/withApiState'
@@ -27,14 +26,9 @@ import {
 import { API_CONFIG } from '../config/api'
 
 type MovieDetailsScreenRouteProp = RouteProp<RootStackParamList, 'MovieDetails'>
-type MovieDetailsScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'MovieDetails'
->
 
 const MovieDetailsScreen: React.FC = () => {
   const dispatch = useDispatch()
-  const navigation = useNavigation<MovieDetailsScreenNavigationProp>()
   const route = useRoute<MovieDetailsScreenRouteProp>()
 
   const { movieId, movie } = route.params
@@ -44,16 +38,11 @@ const MovieDetailsScreen: React.FC = () => {
   )
 
   useEffect(() => {
-    // Set the header title
-    navigation.setOptions({
-      title: movie?.title || 'Movie Details',
-    })
-
     // Fetch movie details if not already loaded
     if (!movieDetails) {
       dispatch(fetchMovieDetailsRequest({ movieId }))
     }
-  }, [dispatch, movieId, movieDetails, navigation, movie])
+  }, [dispatch, movieId, movieDetails])
 
   const handleToggleFavorite = useCallback(() => {
     const movieToToggle = movieDetails || movie
@@ -211,7 +200,7 @@ const MovieDetailsScreen: React.FC = () => {
   ))
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       <MovieDetailsComponent
         apiState={{ isLoading: false, error: null }}
         onRetry={() => dispatch(fetchMovieDetailsRequest({ movieId }))}
@@ -253,6 +242,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     marginTop: -50, // Overlap with backdrop
+    paddingTop: 50,
   },
   movieInfo: {
     backgroundColor: '#fff',
