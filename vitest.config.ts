@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config'
+import { resolve } from 'path'
 
 export default defineConfig({
   test: {
@@ -28,8 +29,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': './src',
-      '@env': './src/__tests__/mocks/env.ts',
+      '@': resolve(__dirname, './src'),
+      '@env': resolve(__dirname, './src/__tests__/mocks/env.ts'),
     },
   },
 })

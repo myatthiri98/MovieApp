@@ -13,8 +13,8 @@ import {
   loadFavorites,
   loadFavoritesSuccess,
   setNetworkStatus,
-} from '../../../store/actions/movieActions'
-import { Movie, MovieDetails } from '../../../types'
+} from '@/store/actions/movieActions'
+import { Movie, MovieDetails } from '@/types'
 
 const mockMovie: Movie = {
   id: 1,
