@@ -8,7 +8,11 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "lint:fix": "tsc --noEmit && eslint --fix \"**/*.{js,ts,tsx}\" && prettier --write \"**/*.{js,ts,tsx}\""
+    "lint:fix": "tsc --noEmit && eslint --fix \"**/*.{js,ts,tsx}\" && prettier --write \"**/*.{js,ts,tsx}\"",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -40,14 +44,21 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.2.0",
+    "@types/jest": "^30.0.0",
     "@types/react": "~19.0.10",
     "@types/react-native-dotenv": "^0.2.2",
+    "@vitest/ui": "^3.2.4",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~9.2.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.5.0",
+    "jsdom": "^26.1.0",
     "prettier": "^3.5.3",
-    "typescript": "~5.8.3"
+    "react-test-renderer": "19.0.0",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
   },
   "private": true
 }
