@@ -1,4 +1,3 @@
-// Movie Types
 export interface Movie {
   id: number
   title: string
@@ -70,7 +69,6 @@ export interface MovieDetails extends Movie {
   tagline: string
 }
 
-// API Types
 export interface ApiError {
   message: string
   status_code?: number
@@ -82,13 +80,11 @@ export interface ApiState {
   isRefreshing?: boolean
 }
 
-// Navigation Types
 export type RootStackParamList = {
   MovieList: undefined
   MovieDetails: { movieId: number; movie?: Movie }
 }
 
-// Redux State Types
 export interface MoviesState {
   upcoming: {
     movies: Movie[]
@@ -115,7 +111,6 @@ export interface RootState {
   }
 }
 
-// Config Types
 export interface ApiConfig {
   baseUrl: string
   apiKey: string

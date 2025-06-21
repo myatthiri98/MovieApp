@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import { Movie } from '@/types'
 import { API_CONFIG } from '@/config/api'
+import { COLORS } from '@/constants'
 
 interface MovieCardProps {
   movie: Movie
@@ -52,7 +53,7 @@ export const MovieCard: React.FC<MovieCardProps> = ({
           <Ionicons
             name={movie.isFavorite ? 'heart' : 'heart-outline'}
             size={20}
-            color={movie.isFavorite ? '#FF3B30' : '#fff'}
+            color={movie.isFavorite ? COLORS.favorite : COLORS.textWhite}
           />
         </TouchableOpacity>
       </View>

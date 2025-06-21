@@ -24,8 +24,22 @@ import {
   ProductionCompany,
 } from '@/types'
 import { API_CONFIG } from '@/config/api'
+import {
+  COLORS,
+  SPACING,
+  FONT_SIZES,
+  FONT_WEIGHTS,
+  BORDER_RADIUS,
+  DIMENSIONS,
+  STRINGS,
+  SCREEN_NAMES,
+  formatString,
+} from '@/constants'
 
-type MovieDetailsScreenRouteProp = RouteProp<RootStackParamList, 'MovieDetails'>
+type MovieDetailsScreenRouteProp = RouteProp<
+  RootStackParamList,
+  typeof SCREEN_NAMES.MovieDetails
+>
 
 const MovieDetailsScreen: React.FC = () => {
   const dispatch = useDispatch()
@@ -38,7 +52,6 @@ const MovieDetailsScreen: React.FC = () => {
   )
 
   useEffect(() => {
-    // Fetch movie details if not already loaded
     if (!movieDetails) {
       dispatch(fetchMovieDetailsRequest({ movieId }))
     }
@@ -56,7 +69,7 @@ const MovieDetailsScreen: React.FC = () => {
   if (!currentMovie) {
     return (
       <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
+        <Text>{STRINGS.loading.default}</Text>
       </View>
     )
   }
@@ -71,18 +84,14 @@ const MovieDetailsScreen: React.FC = () => {
 
   const MovieDetailsComponent = withApiState(() => (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Backdrop Image */}
       {backdropUrl && (
         <View style={styles.backdropContainer}>
           <Image source={{ uri: backdropUrl }} style={styles.backdrop} />
-          <View style={styles.backdropOverlay} />
         </View>
       )}
 
-      {/* Main Content */}
       <View style={styles.content}>
         <View style={styles.movieInfo}>
-          {/* Poster and Basic Info */}
           <View style={styles.movieHeader}>
             {posterUrl && (
               <Image source={{ uri: posterUrl }} style={styles.poster} />
@@ -96,30 +105,33 @@ const MovieDetailsScreen: React.FC = () => {
               )}
 
               <View style={styles.ratingContainer}>
-                <Ionicons name="star" size={16} color="#FFD700" />
+                <Ionicons
+                  name="star"
+                  size={FONT_SIZES.lg}
+                  color={COLORS.rating}
+                />
                 <Text style={styles.rating}>
                   {currentMovie.vote_average.toFixed(1)}
                 </Text>
                 <Text style={styles.voteCount}>
-                  ({currentMovie.vote_count} votes)
+                  {formatString.votes(currentMovie.vote_count)}
                 </Text>
               </View>
 
               <View style={styles.metaInfo}>
                 <Text style={styles.releaseDate}>
-                  {new Date(currentMovie.release_date).getFullYear()}
+                  {formatString.year(currentMovie.release_date)}
                 </Text>
                 {movieDetails?.runtime && (
                   <>
                     <Text style={styles.separator}>•</Text>
                     <Text style={styles.runtime}>
-                      {movieDetails.runtime} min
+                      {formatString.runtime(movieDetails.runtime)}
                     </Text>
                   </>
                 )}
               </View>
 
-              {/* Genres */}
               {movieDetails?.genres && movieDetails.genres.length > 0 && (
                 <View style={styles.genresContainer}>
                   {movieDetails.genres.map((genre: Genre) => (
@@ -132,7 +144,6 @@ const MovieDetailsScreen: React.FC = () => {
             </View>
           </View>
 
-          {/* Favorite Button */}
           <TouchableOpacity
             style={styles.favoriteButton}
             onPress={handleToggleFavorite}
@@ -140,51 +151,59 @@ const MovieDetailsScreen: React.FC = () => {
           >
             <Ionicons
               name={currentMovie.isFavorite ? 'heart' : 'heart-outline'}
-              size={24}
-              color={currentMovie.isFavorite ? '#FF3B30' : '#007AFF'}
+              size={FONT_SIZES.xxxl}
+              color={currentMovie.isFavorite ? COLORS.favorite : COLORS.primary}
             />
             <Text
               style={[
                 styles.favoriteButtonText,
-                { color: currentMovie.isFavorite ? '#FF3B30' : '#007AFF' },
+                {
+                  color: currentMovie.isFavorite
+                    ? COLORS.favorite
+                    : COLORS.primary,
+                },
               ]}
             >
               {currentMovie.isFavorite
-                ? 'Remove from Favorites'
-                : 'Add to Favorites'}
+                ? STRINGS.movies.removeFromFavorites
+                : STRINGS.movies.addToFavorites}
             </Text>
           </TouchableOpacity>
 
-          {/* Overview */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Overview</Text>
+            <Text style={styles.sectionTitle}>{STRINGS.movies.overview}</Text>
             <Text style={styles.overview}>{currentMovie.overview}</Text>
           </View>
 
-          {/* Additional Details for MovieDetails */}
           {movieDetails && (
             <>
               {movieDetails.budget > 0 && (
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Budget</Text>
+                  <Text style={styles.sectionTitle}>
+                    {STRINGS.movies.budget}
+                  </Text>
                   <Text style={styles.detailText}>
-                    ${movieDetails.budget.toLocaleString()}
+                    {formatString.currency(movieDetails.budget)}
                   </Text>
                 </View>
               )}
 
               {movieDetails.revenue > 0 && (
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Revenue</Text>
+                  <Text style={styles.sectionTitle}>
+                    {STRINGS.movies.revenue}
+                  </Text>
                   <Text style={styles.detailText}>
-                    ${movieDetails.revenue.toLocaleString()}
+                    {formatString.currency(movieDetails.revenue)}
                   </Text>
                 </View>
               )}
 
               {movieDetails.production_companies.length > 0 && (
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Production Companies</Text>
+                  <Text style={styles.sectionTitle}>
+                    {STRINGS.movies.productionCompanies}
+                  </Text>
                   <Text style={styles.detailText}>
                     {movieDetails.production_companies
                       .map((company: ProductionCompany) => company.name)
@@ -212,11 +231,11 @@ const MovieDetailsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: COLORS.background,
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.background,
   },
   loadingContainer: {
     flex: 1,
@@ -225,140 +244,132 @@ const styles = StyleSheet.create({
   },
   backdropContainer: {
     position: 'relative',
-    height: 250,
+    height: DIMENSIONS.backdrop.height,
   },
   backdrop: {
     width: '100%',
     height: '100%',
   },
-  backdropOverlay: {
-    // position: 'absolute',
-    // bottom: 0,
-    // left: 0,
-    // right: 0,
-    // height: 100,
-    // backgroundColor: 'rgba(255,255,255,0.8)',
-  },
   content: {
     flex: 1,
-    marginTop: -50, // Overlap with backdrop
-    paddingTop: 50,
+    marginTop: -DIMENSIONS.backdrop.overlap, // Overlap with backdrop
+    paddingTop: DIMENSIONS.backdrop.overlap,
   },
   movieInfo: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
+    backgroundColor: COLORS.background,
+    borderTopLeftRadius: SPACING.xl,
+    borderTopRightRadius: SPACING.xl,
+    padding: SPACING.xl,
     flex: 1,
   },
   movieHeader: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: SPACING.xl,
   },
   poster: {
-    width: 120,
-    height: 180,
-    borderRadius: 12,
-    marginRight: 16,
+    width: DIMENSIONS.poster.medium.width,
+    height: DIMENSIONS.poster.medium.height,
+    borderRadius: BORDER_RADIUS.xl,
+    marginRight: SPACING.lg,
   },
   movieBasicInfo: {
     flex: 1,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
+    fontSize: FONT_SIZES.xxxl,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.xs,
   },
   tagline: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.lg,
     fontStyle: 'italic',
-    color: '#666',
-    marginBottom: 8,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.sm,
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: SPACING.sm,
   },
   rating: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginLeft: 4,
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.semibold,
+    color: COLORS.textPrimary,
+    marginLeft: SPACING.xs,
   },
   voteCount: {
-    fontSize: 14,
-    color: '#666',
-    marginLeft: 4,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.textSecondary,
+    marginLeft: SPACING.xs,
   },
   metaInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: SPACING.md,
   },
   releaseDate: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: FONT_SIZES.md,
+    color: COLORS.textSecondary,
   },
   separator: {
-    fontSize: 14,
-    color: '#666',
-    marginHorizontal: 8,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.textSecondary,
+    marginHorizontal: SPACING.sm,
   },
   runtime: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: FONT_SIZES.md,
+    color: COLORS.textSecondary,
   },
   genresContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 8,
+    marginTop: SPACING.sm,
   },
   genreChip: {
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginRight: 8,
-    marginBottom: 8,
+    backgroundColor: COLORS.backgroundGray,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.md / 2,
+    borderRadius: BORDER_RADIUS.xxl,
+    marginRight: SPACING.sm,
+    marginBottom: SPACING.sm,
   },
   genreText: {
-    fontSize: 12,
-    color: '#666',
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
   },
   favoriteButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 25,
+    backgroundColor: COLORS.backgroundSecondary,
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.md,
+    borderRadius: BORDER_RADIUS.round,
     alignSelf: 'flex-start',
-    marginBottom: 24,
+    marginBottom: SPACING.xxxl,
   },
   favoriteButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.semibold,
+    marginLeft: SPACING.sm,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: SPACING.xxxl,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+    fontSize: FONT_SIZES.xl,
+    fontWeight: FONT_WEIGHTS.semibold,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.sm,
   },
   overview: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#666',
+    fontSize: FONT_SIZES.lg,
+    lineHeight: SPACING.xxxl,
+    color: COLORS.textSecondary,
   },
   detailText: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: FONT_SIZES.lg,
+    color: COLORS.textSecondary,
   },
 })
 

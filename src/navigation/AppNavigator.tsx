@@ -4,6 +4,13 @@ import { createStackNavigator } from '@react-navigation/stack'
 import { RootStackParamList } from '@/types'
 import MovieListScreen from '@/screens/MovieListScreen'
 import MovieDetailsScreen from '@/screens/MovieDetailsScreen'
+import {
+  SCREEN_NAMES,
+  NAVIGATION_CONFIG,
+  COLORS,
+  FONT_WEIGHTS,
+  STRINGS,
+} from '@/constants'
 
 const Stack = createStackNavigator<RootStackParamList>()
 
@@ -11,38 +18,39 @@ const AppNavigator: React.FC = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="MovieList"
+        initialRouteName={SCREEN_NAMES.MovieList}
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#007AFF',
+            backgroundColor: COLORS.primary,
           },
-          headerTintColor: '#fff',
+          headerTintColor: COLORS.textWhite,
           headerTitleStyle: {
-            fontWeight: 'bold',
+            fontWeight: FONT_WEIGHTS.bold,
           },
-          headerBackTitle: '',
-          gestureEnabled: true,
+          headerBackTitle: NAVIGATION_CONFIG.headerBackTitle,
+          gestureEnabled: NAVIGATION_CONFIG.gestureEnabled,
         }}
       >
         <Stack.Screen
-          name="MovieList"
+          name={SCREEN_NAMES.MovieList}
           component={MovieListScreen}
           options={{
-            headerShown: false,
+            headerShown: NAVIGATION_CONFIG.screens.movieList.headerShown,
           }}
         />
         <Stack.Screen
-          name="MovieDetails"
+          name={SCREEN_NAMES.MovieDetails}
           component={MovieDetailsScreen}
           options={({ route }) => ({
             headerStyle: {
-              backgroundColor: '#007AFF',
+              backgroundColor: COLORS.primary,
             },
-            headerTintColor: '#fff',
-            title: route.params?.movie?.title || 'Movie Details',
-            headerBackTitle: '',
-            headerShown: true,
-            gestureEnabled: true,
+            headerTintColor: COLORS.textWhite,
+            title: route.params?.movie?.title || STRINGS.movies.movieDetails,
+            headerBackTitle: NAVIGATION_CONFIG.headerBackTitle,
+            headerShown: NAVIGATION_CONFIG.screens.movieDetails.headerShown,
+            gestureEnabled:
+              NAVIGATION_CONFIG.screens.movieDetails.gestureEnabled,
           })}
         />
       </Stack.Navigator>

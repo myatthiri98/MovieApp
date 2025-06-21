@@ -26,14 +26,12 @@ import {
 import { apiService } from '@/services/api'
 import { Movie, MovieDetails, MovieListResponse, RootState } from '@/types'
 
-// Worker Sagas
 function* fetchUpcomingMoviesSaga(
   action: PayloadAction<{ page: number; refresh?: boolean }>,
 ) {
   try {
     const { page } = action.payload
 
-    // Convert Observable to Promise for saga
     const response: MovieListResponse = yield call(() =>
       firstValueFrom(apiService.getUpcomingMovies(page)),
     )
@@ -66,7 +64,6 @@ function* fetchPopularMoviesSaga(
   try {
     const { page } = action.payload
 
-    // Convert Observable to Promise for saga
     const response: MovieListResponse = yield call(() =>
       firstValueFrom(apiService.getPopularMovies(page)),
     )
@@ -95,7 +92,6 @@ function* fetchMovieDetailsSaga(action: PayloadAction<{ movieId: number }>) {
   try {
     const { movieId } = action.payload
 
-    // Convert Observable to Promise for saga
     const movieDetails: MovieDetails = yield call(() =>
       firstValueFrom(apiService.getMovieDetails(movieId)),
     )
@@ -117,11 +113,9 @@ function* toggleFavoriteSaga(
   action: PayloadAction<{ movie: Movie }>,
 ): Generator<unknown, void, RootState> {
   try {
-    // Get current favorites from state
     const state: RootState = yield select()
     const favorites = state.movies.favorites
 
-    // Save to AsyncStorage
     yield call(AsyncStorage.setItem, 'favorites', JSON.stringify(favorites))
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -145,7 +139,6 @@ function* loadFavoritesSaga() {
   }
 }
 
-// Watcher Sagas
 function* watchFetchUpcomingMovies() {
   yield takeLatest(fetchUpcomingMoviesRequest.type, fetchUpcomingMoviesSaga)
 }
@@ -166,7 +159,6 @@ function* watchLoadFavorites() {
   yield takeLatest(loadFavorites.type, loadFavoritesSaga)
 }
 
-// Root Saga
 export function* movieSagas() {
   yield all([
     watchFetchUpcomingMovies(),

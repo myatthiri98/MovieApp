@@ -13,7 +13,6 @@ export default function App() {
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    // Set up network monitoring
     const unsubscribe = NetInfo.addEventListener((state) => {
       store.dispatch(
         setNetworkStatus({
@@ -28,7 +27,6 @@ export default function App() {
   }, [])
 
   if (!isReady) {
-    // You can replace this with a custom splash screen
     return null
   }
 

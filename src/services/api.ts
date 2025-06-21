@@ -6,7 +6,6 @@ import NetInfo from '@react-native-community/netinfo'
 import { API_CONFIG, API_ENDPOINTS } from '@/config/api'
 import { MovieListResponse, MovieDetails, ApiError } from '@/types'
 
-// Storage keys
 const STORAGE_KEYS = {
   UPCOMING_MOVIES: 'upcoming_movies',
   POPULAR_MOVIES: 'popular_movies',
@@ -15,7 +14,6 @@ const STORAGE_KEYS = {
   LAST_FETCH: 'last_fetch_',
 }
 
-// Cache duration in milliseconds (5 minutes)
 const CACHE_DURATION = 5 * 60 * 1000
 
 export interface IApiService {
@@ -37,7 +35,6 @@ export class ApiService implements IApiService {
       },
     })
 
-    // Add interceptor to include API key
     this.axiosInstance.interceptors.request.use((config) => {
       config.params = {
         ...config.params,
@@ -46,7 +43,6 @@ export class ApiService implements IApiService {
       return config
     })
 
-    // Add response interceptor for error handling
     this.axiosInstance.interceptors.response.use(
       (response) => response,
       (error) => {
@@ -116,14 +112,12 @@ export class ApiService implements IApiService {
 
     return from(this.isOnline()).pipe(
       mergeMap(async (isOnline) => {
-        // First, try to get cached data (offline-first approach)
         const cachedData = await this.getCachedData<MovieListResponse>(cacheKey)
         if (cachedData && !isOnline) {
           return cachedData
         }
 
         if (!isOnline) {
-          // If offline and no cache, get any available offline data
           const offlineData =
             await this.getOfflineData<MovieListResponse>(cacheKey)
           if (offlineData) {
@@ -132,19 +126,16 @@ export class ApiService implements IApiService {
           throw new Error('No internet connection and no cached data available')
         }
 
-        // If online, fetch from API
         try {
           const response = await this.axiosInstance.get<MovieListResponse>(
             API_ENDPOINTS.upcoming,
             { params: { page } },
           )
 
-          // Cache the response
           await this.setCachedData(cacheKey, response.data)
 
           return response.data
         } catch (error) {
-          // If API fails, fallback to cached data
           const offlineData =
             await this.getOfflineData<MovieListResponse>(cacheKey)
           if (offlineData) {
@@ -162,14 +153,12 @@ export class ApiService implements IApiService {
 
     return from(this.isOnline()).pipe(
       mergeMap(async (isOnline) => {
-        // First, try to get cached data (offline-first approach)
         const cachedData = await this.getCachedData<MovieListResponse>(cacheKey)
         if (cachedData && !isOnline) {
           return cachedData
         }
 
         if (!isOnline) {
-          // If offline and no cache, get any available offline data
           const offlineData =
             await this.getOfflineData<MovieListResponse>(cacheKey)
           if (offlineData) {
@@ -178,19 +167,16 @@ export class ApiService implements IApiService {
           throw new Error('No internet connection and no cached data available')
         }
 
-        // If online, fetch from API
         try {
           const response = await this.axiosInstance.get<MovieListResponse>(
             API_ENDPOINTS.popular,
             { params: { page } },
           )
 
-          // Cache the response
           await this.setCachedData(cacheKey, response.data)
 
           return response.data
         } catch (error) {
-          // If API fails, fallback to cached data
           const offlineData =
             await this.getOfflineData<MovieListResponse>(cacheKey)
           if (offlineData) {
@@ -208,14 +194,12 @@ export class ApiService implements IApiService {
 
     return from(this.isOnline()).pipe(
       mergeMap(async (isOnline) => {
-        // First, try to get cached data (offline-first approach)
         const cachedData = await this.getCachedData<MovieDetails>(cacheKey)
         if (cachedData && !isOnline) {
           return cachedData
         }
 
         if (!isOnline) {
-          // If offline and no cache, get any available offline data
           const offlineData = await this.getOfflineData<MovieDetails>(cacheKey)
           if (offlineData) {
             return offlineData
@@ -223,18 +207,15 @@ export class ApiService implements IApiService {
           throw new Error('No internet connection and no cached data available')
         }
 
-        // If online, fetch from API
         try {
           const response = await this.axiosInstance.get<MovieDetails>(
             API_ENDPOINTS.movieDetails(id),
           )
 
-          // Cache the response
           await this.setCachedData(cacheKey, response.data)
 
           return response.data
         } catch (error) {
-          // If API fails, fallback to cached data
           const offlineData = await this.getOfflineData<MovieDetails>(cacheKey)
           if (offlineData) {
             return offlineData
@@ -247,5 +228,4 @@ export class ApiService implements IApiService {
   }
 }
 
-// Singleton instance for dependency injection
 export const apiService = new ApiService()

@@ -1,7 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit'
 import { setNetworkStatus } from '@/store/actions/movieActions'
 
-interface NetworkState {
+type NetworkState = {
   isConnected: boolean
 }
 

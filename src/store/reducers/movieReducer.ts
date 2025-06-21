@@ -42,7 +42,6 @@ const initialState: MoviesState = {
 
 export const movieReducer = createReducer(initialState, (builder) => {
   builder
-    // Upcoming Movies
     .addCase(fetchUpcomingMoviesRequest, (state, action) => {
       state.upcoming.api.isLoading = true
       state.upcoming.api.error = null
@@ -66,7 +65,6 @@ export const movieReducer = createReducer(initialState, (builder) => {
         ]
       }
 
-      // Update favorites status
       state.upcoming.movies = state.upcoming.movies.map((movie) => ({
         ...movie,
         isFavorite: state.favorites.some((fav) => fav.id === movie.id),
@@ -78,7 +76,6 @@ export const movieReducer = createReducer(initialState, (builder) => {
       state.upcoming.api.error = action.payload.error
     })
 
-    // Popular Movies
     .addCase(fetchPopularMoviesRequest, (state, action) => {
       state.popular.api.isLoading = true
       state.popular.api.error = null
@@ -102,7 +99,6 @@ export const movieReducer = createReducer(initialState, (builder) => {
         ]
       }
 
-      // Update favorites status
       state.popular.movies = state.popular.movies.map((movie) => ({
         ...movie,
         isFavorite: state.favorites.some((fav) => fav.id === movie.id),
@@ -129,7 +125,6 @@ export const movieReducer = createReducer(initialState, (builder) => {
       // Handle movie details error if needed
     })
 
-    // Favorites
     .addCase(toggleFavorite, (state, action) => {
       const movie = action.payload.movie
       const existingFavoriteIndex = state.favorites.findIndex(
@@ -137,14 +132,11 @@ export const movieReducer = createReducer(initialState, (builder) => {
       )
 
       if (existingFavoriteIndex >= 0) {
-        // Remove from favorites
         state.favorites.splice(existingFavoriteIndex, 1)
       } else {
-        // Add to favorites
         state.favorites.push({ ...movie, isFavorite: true })
       }
 
-      // Update movie in upcoming list
       const upcomingIndex = state.upcoming.movies.findIndex(
         (m) => m.id === movie.id,
       )
@@ -155,7 +147,6 @@ export const movieReducer = createReducer(initialState, (builder) => {
         }
       }
 
-      // Update movie in popular list
       const popularIndex = state.popular.movies.findIndex(
         (m) => m.id === movie.id,
       )
@@ -166,7 +157,6 @@ export const movieReducer = createReducer(initialState, (builder) => {
         }
       }
 
-      // Update movie in details
       if (state.movieDetails[movie.id]) {
         state.movieDetails[movie.id] = {
           ...state.movieDetails[movie.id],
@@ -178,7 +168,6 @@ export const movieReducer = createReducer(initialState, (builder) => {
       state.favorites = action.payload.favorites
     })
 
-    // UI
     .addCase(setRefreshing, (state, action) => {
       if (action.payload.movieType === 'upcoming') {
         state.upcoming.api.isRefreshing = action.payload.isRefreshing

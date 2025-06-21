@@ -21,10 +21,21 @@ import {
   loadFavorites,
 } from '@/store/actions/movieActions'
 import { RootStackParamList, Movie, RootState } from '@/types'
+import {
+  COLORS,
+  SPACING,
+  FONT_SIZES,
+  FONT_WEIGHTS,
+  BORDER_RADIUS,
+  STRINGS,
+  SCREEN_NAMES,
+  PAGINATION,
+  formatString,
+} from '@/constants'
 
 type MovieListScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
-  'MovieList'
+  typeof SCREEN_NAMES.MovieList
 >
 
 type TabType = 'upcoming' | 'popular'
@@ -39,10 +50,7 @@ const MovieListScreen: React.FC = () => {
   const currentData = activeTab === 'upcoming' ? upcoming : popular
 
   useEffect(() => {
-    // Load favorites from storage
     dispatch(loadFavorites())
-
-    // Fetch initial data
     if (upcoming.movies.length === 0) {
       dispatch(fetchUpcomingMoviesRequest({ page: 1 }))
     }
@@ -73,7 +81,10 @@ const MovieListScreen: React.FC = () => {
 
   const handleMoviePress = useCallback(
     (movie: Movie) => {
-      navigation.navigate('MovieDetails', { movieId: movie.id, movie })
+      navigation.navigate(SCREEN_NAMES.MovieDetails, {
+        movieId: movie.id,
+        movie,
+      })
     },
     [navigation],
   )
@@ -100,7 +111,7 @@ const MovieListScreen: React.FC = () => {
     if (currentData.api.isLoading && currentData.movies.length > 0) {
       return (
         <View style={styles.loadingFooter}>
-          <Text>Loading more...</Text>
+          <Text>{STRINGS.loading.loadingMore}</Text>
         </View>
       )
     }
@@ -119,11 +130,11 @@ const MovieListScreen: React.FC = () => {
         <RefreshControl
           refreshing={currentData.api.isRefreshing || false}
           onRefresh={handleRefresh}
-          colors={['#007AFF']}
+          colors={[COLORS.primary]}
         />
       }
       onEndReached={handleLoadMore}
-      onEndReachedThreshold={0.3}
+      onEndReachedThreshold={PAGINATION.endReachedThreshold}
       ListFooterComponent={renderFooter}
       showsVerticalScrollIndicator={false}
     />
@@ -132,7 +143,7 @@ const MovieListScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
-        <Text style={styles.title}>{'Welcome to the Movie App'}</Text>
+        <Text style={styles.title}>{STRINGS.app.welcomeTitle}</Text>
         <View style={styles.tabContainer}>
           <TouchableOpacity
             style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
@@ -144,7 +155,7 @@ const MovieListScreen: React.FC = () => {
                 activeTab === 'upcoming' && styles.activeTabText,
               ]}
             >
-              Upcoming
+              {STRINGS.tabs.upcoming}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -157,7 +168,7 @@ const MovieListScreen: React.FC = () => {
                 activeTab === 'popular' && styles.activeTabText,
               ]}
             >
-              Popular
+              {STRINGS.tabs.popular}
             </Text>
           </TouchableOpacity>
         </View>
@@ -170,7 +181,7 @@ const MovieListScreen: React.FC = () => {
         showEmptyState={
           currentData.movies.length === 0 && !currentData.api.isLoading
         }
-        emptyMessage={`No ${activeTab} movies found`}
+        emptyMessage={formatString.emptyMovies(activeTab)}
       />
     </SafeAreaView>
   )
@@ -179,52 +190,52 @@ const MovieListScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: COLORS.background,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: COLORS.border,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 16,
+    fontSize: FONT_SIZES.huge,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.lg,
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#f0f0f0',
-    borderRadius: 6,
+    backgroundColor: COLORS.backgroundGray,
+    borderRadius: BORDER_RADIUS.md,
   },
   tab: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: BORDER_RADIUS.md,
     alignItems: 'center',
   },
   activeTab: {
-    backgroundColor: '#007AFF',
+    backgroundColor: COLORS.primary,
   },
   tabText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#666',
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.medium,
+    color: COLORS.textSecondary,
   },
   activeTabText: {
-    color: '#fff',
+    color: COLORS.textWhite,
   },
   listContainer: {
-    padding: 16,
+    padding: SPACING.lg,
   },
   row: {
     justifyContent: 'space-between',
   },
   loadingFooter: {
-    padding: 16,
+    padding: SPACING.lg,
     alignItems: 'center',
   },
 })
