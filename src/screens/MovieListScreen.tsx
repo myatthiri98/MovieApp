@@ -6,8 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   RefreshControl,
-  SafeAreaView,
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigation } from '@react-navigation/native'
 import { StackNavigationProp } from '@react-navigation/stack'
@@ -20,7 +20,7 @@ import {
   toggleFavorite,
   loadFavorites,
 } from '../store/actions/movieActions'
-import { RootStackParamList, Movie } from '../types'
+import { RootStackParamList, Movie, RootState } from '../types'
 
 type MovieListScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -34,7 +34,7 @@ const MovieListScreen: React.FC = () => {
   const navigation = useNavigation<MovieListScreenNavigationProp>()
   const [activeTab, setActiveTab] = useState<TabType>('upcoming')
 
-  const { upcoming, popular } = useSelector((state: any) => state.movies)
+  const { upcoming, popular } = useSelector((state: RootState) => state.movies)
 
   const currentData = activeTab === 'upcoming' ? upcoming : popular
 
@@ -130,7 +130,7 @@ const MovieListScreen: React.FC = () => {
   ))
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <Text style={styles.title}>{'Welcome to the Movie App'}</Text>
         <View style={styles.tabContainer}>
@@ -179,7 +179,7 @@ const MovieListScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
   },
   header: {
     backgroundColor: '#fff',
@@ -197,8 +197,7 @@ const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',
     backgroundColor: '#f0f0f0',
-    borderRadius: 8,
-    padding: 4,
+    borderRadius: 6,
   },
   tab: {
     flex: 1,

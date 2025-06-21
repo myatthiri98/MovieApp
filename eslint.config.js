@@ -10,6 +10,7 @@ module.exports = defineConfig([
   {
     rules: {
       'no-console': 'error',
+      'import/no-unresolved': ['error', { ignore: ['^@env$'] }],
     },
   },
 ])

@@ -24,7 +24,7 @@ import {
   loadFavoritesSuccess,
 } from '../actions/movieActions'
 import { apiService } from '../../services/api'
-import { Movie, MovieDetails, MovieListResponse } from '../../types'
+import { Movie, MovieDetails, MovieListResponse, RootState } from '../../types'
 
 // Worker Sagas
 function* fetchUpcomingMoviesSaga(
@@ -47,12 +47,14 @@ function* fetchUpcomingMoviesSaga(
         hasMore,
       }),
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     // eslint-disable-next-line no-console
     console.error('fetchUpcomingMoviesSaga error:', error)
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to fetch upcoming movies'
     yield put(
       fetchUpcomingMoviesFailure({
-        error: error.message || 'Failed to fetch upcoming movies',
+        error: errorMessage,
       }),
     )
   }
@@ -78,10 +80,12 @@ function* fetchPopularMoviesSaga(
         hasMore,
       }),
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to fetch popular movies'
     yield put(
       fetchPopularMoviesFailure({
-        error: error.message || 'Failed to fetch popular movies',
+        error: errorMessage,
       }),
     )
   }
@@ -97,10 +101,12 @@ function* fetchMovieDetailsSaga(action: PayloadAction<{ movieId: number }>) {
     )
 
     yield put(fetchMovieDetailsSuccess({ movieDetails }))
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to fetch movie details'
     yield put(
       fetchMovieDetailsFailure({
-        error: error.message || 'Failed to fetch movie details',
+        error: errorMessage,
         movieId: action.payload.movieId,
       }),
     )
@@ -109,10 +115,10 @@ function* fetchMovieDetailsSaga(action: PayloadAction<{ movieId: number }>) {
 
 function* toggleFavoriteSaga(
   action: PayloadAction<{ movie: Movie }>,
-): Generator<any, void, unknown> {
+): Generator<unknown, void, RootState> {
   try {
     // Get current favorites from state
-    const state: any = yield select()
+    const state: RootState = yield select()
     const favorites = state.movies.favorites
 
     // Save to AsyncStorage

@@ -3,6 +3,8 @@ import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import NetInfo from '@react-native-community/netinfo'
 import { StatusBar } from 'expo-status-bar'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { Platform } from 'react-native'
 import { store, persistor } from './src/store'
 import AppNavigator from './src/navigation/AppNavigator'
 import { setNetworkStatus } from './src/store/actions/movieActions'
@@ -31,11 +33,13 @@ export default function App() {
   }
 
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <StatusBar style="auto" />
-        <AppNavigator />
-      </PersistGate>
-    </Provider>
+    <SafeAreaProvider>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <StatusBar style="dark" translucent={Platform.OS === 'android'} />
+          <AppNavigator />
+        </PersistGate>
+      </Provider>
+    </SafeAreaProvider>
   )
 }

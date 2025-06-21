@@ -6,8 +6,8 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useDispatch, useSelector } from 'react-redux'
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native'
 import { StackNavigationProp } from '@react-navigation/stack'
@@ -18,7 +18,12 @@ import {
   fetchMovieDetailsRequest,
   toggleFavorite,
 } from '../store/actions/movieActions'
-import { RootStackParamList } from '../types'
+import {
+  RootStackParamList,
+  RootState,
+  Genre,
+  ProductionCompany,
+} from '../types'
 import { API_CONFIG } from '../config/api'
 
 type MovieDetailsScreenRouteProp = RouteProp<RootStackParamList, 'MovieDetails'>
@@ -35,7 +40,7 @@ const MovieDetailsScreen: React.FC = () => {
   const { movieId, movie } = route.params
 
   const movieDetails = useSelector(
-    (state: any) => state.movies.movieDetails[movieId],
+    (state: RootState) => state.movies.movieDetails[movieId],
   )
 
   useEffect(() => {
@@ -128,7 +133,7 @@ const MovieDetailsScreen: React.FC = () => {
               {/* Genres */}
               {movieDetails?.genres && movieDetails.genres.length > 0 && (
                 <View style={styles.genresContainer}>
-                  {movieDetails.genres.map((genre: any) => (
+                  {movieDetails.genres.map((genre: Genre) => (
                     <View key={genre.id} style={styles.genreChip}>
                       <Text style={styles.genreText}>{genre.name}</Text>
                     </View>
@@ -193,7 +198,7 @@ const MovieDetailsScreen: React.FC = () => {
                   <Text style={styles.sectionTitle}>Production Companies</Text>
                   <Text style={styles.detailText}>
                     {movieDetails.production_companies
-                      .map((company: any) => company.name)
+                      .map((company: ProductionCompany) => company.name)
                       .join(', ')}
                   </Text>
                 </View>
@@ -206,7 +211,7 @@ const MovieDetailsScreen: React.FC = () => {
   ))
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <MovieDetailsComponent
         apiState={{ isLoading: false, error: null }}
         onRetry={() => dispatch(fetchMovieDetailsRequest({ movieId }))}
@@ -218,7 +223,7 @@ const MovieDetailsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#ffffff',
   },
   container: {
     flex: 1,
