@@ -277,6 +277,8 @@ const MovieDetailsScreen: React.FC = () => {
           minIndexForVisible: 0,
           autoscrollToTopThreshold: 10,
         }}
+        removeClippedSubviews={true}
+        nestedScrollEnabled={false}
       >
         <WrappedContent
           apiState={{ isLoading: false, error: null }}

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import {
   View,
   Text,
@@ -16,7 +16,6 @@ import {
   FONT_SIZES,
   FONT_WEIGHTS,
   BORDER_RADIUS,
-  DIMENSIONS,
 } from '@/constants'
 
 interface MovieCardProps {
@@ -28,7 +27,7 @@ interface MovieCardProps {
 const { width } = Dimensions.get('window')
 const CARD_WIDTH = (width - SPACING.lg * 3) / 2 // 2 columns with padding
 
-export const MovieCard: React.FC<MovieCardProps> = ({
+const MovieCardComponent: React.FC<MovieCardProps> = ({
   movie,
   onPress,
   onToggleFavorite,
@@ -86,6 +85,8 @@ export const MovieCard: React.FC<MovieCardProps> = ({
     </TouchableOpacity>
   )
 }
+
+export const MovieCard = memo(MovieCardComponent)
 
 const styles = StyleSheet.create({
   container: {

@@ -51,6 +51,10 @@ const AppNavigator: React.FC = () => {
             headerShown: NAVIGATION_CONFIG.screens.movieDetails.headerShown,
             gestureEnabled:
               NAVIGATION_CONFIG.screens.movieDetails.gestureEnabled,
+            headerBackTitleVisible: false, // Clean iOS back button
+            headerTruncatedBackTitle: STRINGS.actions.back,
+            headerLeft: undefined, // Ensure default back button is used
+            headerBackAccessibilityLabel: STRINGS.accessibility.backButton,
           })}
         />
       </Stack.Navigator>

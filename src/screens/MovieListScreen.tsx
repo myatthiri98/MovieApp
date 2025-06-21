@@ -136,6 +136,18 @@ const MovieListScreen: React.FC = () => {
     [handleMoviePress, handleToggleFavorite],
   )
 
+  const keyExtractor = useCallback((item: Movie) => item.id.toString(), [])
+
+  const getItemLayout = useCallback((_: any, index: number) => {
+    const ITEM_HEIGHT = 280 // Approximate height of MovieCard
+    const ITEM_MARGIN = 16
+    return {
+      length: ITEM_HEIGHT + ITEM_MARGIN,
+      offset: (ITEM_HEIGHT + ITEM_MARGIN) * Math.floor(index / 2),
+      index,
+    }
+  }, [])
+
   const renderFooter = useCallback(() => {
     if (currentData.api.isLoading && currentData.movies.length > 0) {
       return (
@@ -146,6 +158,19 @@ const MovieListScreen: React.FC = () => {
     }
     return null
   }, [currentData])
+
+  const EmptyComponent = useCallback(() => {
+    if (currentData.movies.length === 0 && !currentData.api.isLoading) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>
+            {formatString.emptyMovies(activeTab)}
+          </Text>
+        </View>
+      )
+    }
+    return null
+  }, [currentData.movies.length, currentData.api.isLoading, activeTab])
 
   const MovieListContent = withApiState(() => (
     <View style={{ flex: 1 }}>
@@ -197,7 +222,8 @@ const MovieListScreen: React.FC = () => {
         ref={flatListRef}
         data={currentData.movies}
         renderItem={renderMovieCard}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={keyExtractor}
+        getItemLayout={getItemLayout}
         numColumns={2}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.listContainer}
@@ -218,15 +244,12 @@ const MovieListScreen: React.FC = () => {
           minIndexForVisible: 0,
           autoscrollToTopThreshold: 10,
         }}
-        ListEmptyComponent={
-          currentData.movies.length === 0 && !currentData.api.isLoading ? (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>
-                {formatString.emptyMovies(activeTab)}
-              </Text>
-            </View>
-          ) : null
-        }
+        ListEmptyComponent={EmptyComponent}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        initialNumToRender={10}
+        windowSize={10}
       />
 
       <MovieListContent apiState={currentData.api} onRetry={handleRefresh} />
