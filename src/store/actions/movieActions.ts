@@ -1,5 +1,5 @@
 import { createAction } from '@reduxjs/toolkit'
-import { Movie, MovieDetails } from '../../types'
+import { Movie, MovieDetails } from '@/types'
 
 // Upcoming Movies Actions
 export const fetchUpcomingMoviesRequest = createAction<{

@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { persistStore, persistReducer } from 'redux-persist'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { rootReducer } from './reducers'
-import { rootSaga } from './sagas'
+import { rootReducer } from '@/store/reducers'
+import { rootSaga } from '@/store/sagas'
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const createSagaMiddleware = require('redux-saga')
 

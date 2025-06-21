@@ -15,6 +15,24 @@ module.exports = function (api) {
           verbose: false,
         },
       ],
+      [
+        'module-resolver',
+        {
+          root: ['./src'],
+          alias: {
+            '@': './src',
+          },
+          extensions: [
+            '.ios.js',
+            '.android.js',
+            '.js',
+            '.jsx',
+            '.ts',
+            '.tsx',
+            '.json',
+          ],
+        },
+      ],
     ],
   }
 }

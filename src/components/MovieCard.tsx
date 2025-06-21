@@ -8,8 +8,8 @@ import {
   Dimensions,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { Movie } from '../types'
-import { API_CONFIG } from '../config/api'
+import { Movie } from '@/types'
+import { API_CONFIG } from '@/config/api'
 
 interface MovieCardProps {
   movie: Movie

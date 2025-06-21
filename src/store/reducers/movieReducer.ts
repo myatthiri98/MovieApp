@@ -1,5 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit'
-import { MoviesState } from '../../types'
+import { MoviesState } from '@/types'
 import {
   fetchUpcomingMoviesRequest,
   fetchUpcomingMoviesSuccess,
@@ -13,7 +13,7 @@ import {
   toggleFavorite,
   loadFavoritesSuccess,
   setRefreshing,
-} from '../actions/movieActions'
+} from '@/store/actions/movieActions'
 
 const initialState: MoviesState = {
   upcoming: {

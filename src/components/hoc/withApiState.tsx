@@ -6,7 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native'
-import { ApiState } from '../../types'
+import { ApiState } from '@/types'
 
 interface WithApiStateProps {
   apiState: ApiState

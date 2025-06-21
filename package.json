@@ -49,6 +49,7 @@
     "@types/jest": "^30.0.0",
     "@types/react": "~19.0.10",
     "@types/react-native-dotenv": "^0.2.2",
+    "babel-plugin-module-resolver": "^5.0.2",
     "@vitest/ui": "^3.2.4",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~9.2.0",

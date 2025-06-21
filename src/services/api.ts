@@ -3,8 +3,8 @@ import { Observable, from, throwError } from 'rxjs'
 import { catchError, mergeMap } from 'rxjs/operators'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import NetInfo from '@react-native-community/netinfo'
-import { API_CONFIG, API_ENDPOINTS } from '../config/api'
-import { MovieListResponse, MovieDetails, ApiError } from '../types'
+import { API_CONFIG, API_ENDPOINTS } from '@/config/api'
+import { MovieListResponse, MovieDetails, ApiError } from '@/types'
 
 // Storage keys
 const STORAGE_KEYS = {
